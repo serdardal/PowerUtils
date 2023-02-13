@@ -25,5 +25,3 @@
 	
 	return ,$pairs
 }
-
-Export-ModuleMember -Function Get-KeyValues
