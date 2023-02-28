@@ -68,3 +68,29 @@ function Set-KeyValue {
 	
 	Set-Content -Path $Path -Value $lines -Encoding 'UTF8'
 }
+
+function Import-ModuleFromGallery {
+	param(
+		[Parameter(Mandatory=$true)]
+		[string]$ModuleName,
+		
+		[bool]$AllowClobber = $false
+	)
+	
+	if(Get-Module -ListAvailable -Name $ModuleName) {
+		Import-Module $ModuleName
+	}
+	else{
+
+		# If module is not imported, not available on disk, but is in online gallery then install and import
+		if(Find-Module -Name $ModuleName | Where-Object {$_.Name -eq $ModuleName}) {
+			Install-Module -Name $ModuleName -Force -Verbose -Scope AllUsers -AllowClobber:$AllowClobber
+			Import-Module $ModuleName
+		}
+		else{
+
+			# If module is not imported, not available and not in online gallery then abort
+			throw "Module $ModuleName not imported, not available and not in online gallery, exiting."
+		}
+	}
+}
