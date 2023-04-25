@@ -43,3 +43,106 @@ function Create-ConnectionObject {
 
 	return [ConnectionObject]::new($ServerName, $DatabaseName, $Username, $Password)
 }
+
+function Invoke-SqlFile {
+	param(
+		[Parameter(Mandatory=$true)]
+		[ConnectionObject]$ConnectionObject,
+
+		[Parameter(Mandatory=$true)]
+		[string]$SqlFilePath,
+
+		[bool]$UseDatabase = $true,
+
+		[switch]$RunVerbose
+	)
+
+	if(-Not (Test-Path -Path $SqlFilePath)){
+		Throw "Sql file not found: $SqlFilePath"
+	}
+
+	$params = @{
+		InputFile = $SqlFilePath
+		ServerInstance = $ConnectionObject.ServerName
+		Verbose = $RunVerbose
+		QueryTimeout = 0 # unlimited
+	}
+
+	if($UseDatabase){
+		$params['Database'] = $ConnectionObject.DatabaseName
+	}
+
+	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')){
+		$params['Username'] = $ConnectionObject.Username
+		$params['Password'] = $ConnectionObject.Password
+	}
+
+	Invoke-Sqlcmd @params
+}
+
+function Invoke-SqlCommand {
+	param(
+		[Parameter(Mandatory=$true)]
+		[ConnectionObject]$ConnectionObject,
+
+		[Parameter(Mandatory=$true)]
+		[string]$Command,
+
+		[bool]$UseDatabase = $true,
+
+		[switch]$RunVerbose
+	)
+
+	$params = @{
+		Query = $Command
+		ServerInstance = $ConnectionObject.ServerName
+		Verbose = $RunVerbose
+		QueryTimeout = 0 # unlimited
+	}
+
+	if($UseDatabase){
+		$params['Database'] = $ConnectionObject.DatabaseName
+	}
+
+	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')){
+		$params['Username'] = $ConnectionObject.Username
+		$params['Password'] = $ConnectionObject.Password
+	}
+
+	Invoke-Sqlcmd @params
+}
+
+function Get-QueryResultTables {
+	param(
+		[Parameter(Mandatory=$true)]
+		[ConnectionObject]$ConnectionObject,
+
+		[Parameter(Mandatory=$true)]
+		[string]$Query
+	)
+
+	$connection = New-Object System.Data.SqlClient.SQLConnection
+	$connection.ConnectionString = $ConnectionObject.ConnectionString
+
+	$command = New-Object System.Data.SQLClient.SQLCommand
+	$command.Connection = $connection
+	$command.CommandText = $Query
+	$command.CommandTimeout = 0 # unlimited
+
+	try{
+		$connection.Open()
+
+		$adapter = New-Object System.Data.SqlClient.SqlDataAdapter $command
+		$dataset = New-Object System.Data.DataSet
+		$adapter.Fill($dataSet) | Out-Null
+
+		return ,$dataset.Tables
+	}
+	catch{
+		Throw 'Error occured while getting query result!'
+	}
+	finally{
+		$connection.Close()
+		$connection.Dispose()
+	}
+}

@@ -81,6 +81,9 @@ FunctionsToExport = @(
 	
 	# SqlServer Utils
 	'Create-ConnectionObject',
+	'Invoke-SqlFile',
+	'Invoke-SqlCommand',
+	'Get-QueryResultTables',
 	
 	# Azure Utils
 	'Get-KeyVaultSecretValue'
