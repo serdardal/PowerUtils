@@ -1,5 +1,5 @@
 ﻿function Get-KeyVaultSecretValue {
-	param(
+	param (
 		[Parameter(Mandatory=$true)]
 		[string]$VaultName,
 
@@ -7,11 +7,11 @@
 		[string]$Name
 	)
 
-	try{
+	try {
 		$value = Get-AzKeyVaultSecret -VaultName $VaultName -Name $Name -AsPlainText -ErrorAction Stop
 		return $value.Trim()
 	}
-	catch [System.Management.Automation.PSInvalidOperationException]{
+	catch [System.Management.Automation.PSInvalidOperationException] {
 		if($_.Exception.Message -eq 'Run Connect-AzAccount to login.'){
 			Connect-AzAccount | Out-Null
 

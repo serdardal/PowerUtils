@@ -78,6 +78,7 @@ FunctionsToExport = @(
 	'Get-KeyValues',
 	'Set-KeyValue',
 	'Import-ModuleFromGallery',
+	'Import-ModuleFromLocalRarFile',
 	
 	# SqlServer Utils
 	'Create-ConnectionObject',

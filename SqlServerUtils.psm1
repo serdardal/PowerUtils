@@ -19,7 +19,7 @@
 	}
 }
 
-function GetConnectionString([ConnectionObject]$connObj){
+function GetConnectionString([ConnectionObject]$connObj) {
 	$trustedConnection = 'false'
 	if (($connObj.Username -eq '') -or ($connObj.Password -eq '')){
 		$trustedConnection = 'true'
@@ -29,7 +29,7 @@ function GetConnectionString([ConnectionObject]$connObj){
 }
 
 function Create-ConnectionObject {
-	param(
+	param (
 		[Parameter(Mandatory=$true)]
 		[string]$ServerName,
 
@@ -45,7 +45,7 @@ function Create-ConnectionObject {
 }
 
 function Invoke-SqlFile {
-	param(
+	param (
 		[Parameter(Mandatory=$true)]
 		[ConnectionObject]$ConnectionObject,
 
@@ -57,8 +57,8 @@ function Invoke-SqlFile {
 		[switch]$RunVerbose
 	)
 
-	if(-Not (Test-Path -Path $SqlFilePath)){
-		Throw "Sql file not found: $SqlFilePath"
+	if (-Not (Test-Path -Path $SqlFilePath)) {
+		throw "Sql file not found: $SqlFilePath"
 	}
 
 	$params = @{
@@ -68,11 +68,11 @@ function Invoke-SqlFile {
 		QueryTimeout = 0 # unlimited
 	}
 
-	if($UseDatabase){
+	if ($UseDatabase) {
 		$params['Database'] = $ConnectionObject.DatabaseName
 	}
 
-	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')){
+	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')) {
 		$params['Username'] = $ConnectionObject.Username
 		$params['Password'] = $ConnectionObject.Password
 	}
@@ -81,7 +81,7 @@ function Invoke-SqlFile {
 }
 
 function Invoke-SqlCommand {
-	param(
+	param (
 		[Parameter(Mandatory=$true)]
 		[ConnectionObject]$ConnectionObject,
 
@@ -100,11 +100,11 @@ function Invoke-SqlCommand {
 		QueryTimeout = 0 # unlimited
 	}
 
-	if($UseDatabase){
+	if ($UseDatabase) {
 		$params['Database'] = $ConnectionObject.DatabaseName
 	}
 
-	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')){
+	if (($ConnectionObject.Username -ne '') -And ($ConnectionObject.Password -ne '')) {
 		$params['Username'] = $ConnectionObject.Username
 		$params['Password'] = $ConnectionObject.Password
 	}
@@ -113,7 +113,7 @@ function Invoke-SqlCommand {
 }
 
 function Get-QueryResultTables {
-	param(
+	param (
 		[Parameter(Mandatory=$true)]
 		[ConnectionObject]$ConnectionObject,
 
@@ -129,7 +129,7 @@ function Get-QueryResultTables {
 	$command.CommandText = $Query
 	$command.CommandTimeout = 0 # unlimited
 
-	try{
+	try {
 		$connection.Open()
 
 		$adapter = New-Object System.Data.SqlClient.SqlDataAdapter $command
@@ -138,10 +138,10 @@ function Get-QueryResultTables {
 
 		return ,$dataset.Tables
 	}
-	catch{
-		Throw 'Error occured while getting query result!'
+	catch {
+		throw 'Error occured while getting query result!'
 	}
-	finally{
+	finally {
 		$connection.Close()
 		$connection.Dispose()
 	}
